@@ -1,0 +1,73 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+
+#math-editor {
+    display: inline;
+position: static;
+border: 0;
+padding: 0;
+margin: 0;
+vertical-align: 0;
+line-height: normal;
+text-decoration: none;
+ 
+    /*width:20px!important;*/
+    height:20px;
+    border: 1px dashed grey;
+    border-bottom:1px solid black;
+    outline:none;
+    padding:2px;
+    background-color:white
+    
+}
+
+.editor{
+    min-height: 100px;
+}
+
+.default-item {
+    /*position:;*/
+    display:block;
+    width:16px;
+    height:16px;
+    line-height:16px;
+    border:1px dotted grey;
+    border-right:1px solid black;
+    padding:0;
+    margin:0;
+}
+
+.selection {   
+    text-decoration:underline!important;
+    background-color: lightgray;
+}
+
+.mphantom {       
+    background-color: lightgray;
+}
+
+
+
+
