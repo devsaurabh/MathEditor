@@ -15,7 +15,7 @@
             if (self.editMode == false) {
                 var x = e.pageX - this.offsetLeft;
                 var y = e.pageY - this.offsetTop;
-                var elem = document.elementFromPoint(x, y)
+                var elem = document.elementFromPoint(e.pageX - window.pageXOffset, e.pageY - window.pageYOffset)
                 if (elem != null || elem != undefined) {
                     
                     var className = $(elem).attr("class");

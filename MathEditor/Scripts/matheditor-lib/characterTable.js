@@ -18,7 +18,7 @@ var MathCharacters = function () {
 
         var basic = self.getAllbasicMathSymbols();
         $.each(basic, function (key, value) {
-            var button = '<button type="button" onclick="getSymbol(\'' + value[2] + '\')" class="btn btn-default" data-toggle="tooltip" data-placement="left" title="' + value[0] + '">' + value[1] + '</button>';
+            var button = '<button type="button" onclick="(\'' + value[2] + '\')" class="btn btn-default" data-toggle="tooltip" data-placement="left" title="' + value[0] + '">' + value[1] + '</button>';
             $(element).append(button);
         });
     };
@@ -43,6 +43,8 @@ var MathCharacters = function () {
         symbols.push(['multiplication', '&#215;', '\\\\times']);
         symbols.push(['division', '/', '/']);
         symbols.push(['division', '&#247;', '\\\\div']);
+        symbols.push(['division', '&#247;', '\\\\sqrt{\\\\phantom{x}}']);
+        symbols.push(['division', '&#247;', '\\\\phantom{x} \\\\over \\\\phantom{y}']);
 
         return symbols;
     }

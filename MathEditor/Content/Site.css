@@ -23,51 +23,34 @@ textarea {
     max-width: 280px;
 }
 
-#math-editor {
-    display: inline;
-position: static;
-border: 0;
-padding: 0;
-margin: 0;
-vertical-align: 0;
-line-height: normal;
-text-decoration: none;
- 
-    /*width:20px!important;*/
-    height:20px;
-    border: 1px dashed grey;
-    border-bottom:1px solid black;
+/* Math Editor style to be moved to separate style sheet*/
+
+#math-editor:focus{
+ background-color:white;
+ color:black;
     outline:none;
-    padding:2px;
-    background-color:white
-    
 }
-
-.editor{
-    min-height: 100px;
-}
-
-.default-item {
-    /*position:;*/
-    display:block;
-    width:16px;
-    height:16px;
-    line-height:16px;
-    border:1px dotted grey;
-    border-right:1px solid black;
-    padding:0;
-    margin:0;
+#math-editor{ 
+    outline:none;   
 }
 
 .selection {   
-    text-decoration:underline!important;
-    background-color: lightgray;
+    /*text-decoration:underline!important;
+    background-color: gray;*/
+    -webkit-animation: cusrsorBlink 1s infinite;
+     border-right: 0px solid black!important;
 }
 
 .mphantom {       
     background-color: lightgray;
 }
 
+.toolbar { font-size:.7em}
 
+@-webkit-keyframes cusrsorBlink {
+50% { border-right:1px solid black!important; background-color:lightgray; }
+}
+
+/*End math editor stylesheet*/
 
 

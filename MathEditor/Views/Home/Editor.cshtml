@@ -4,39 +4,13 @@
 <h2>@ViewBag.Title.</h2>
 
 
-<ul class="nav nav-tabs">
-    <li class="active"><a href="#basic" data-toggle="tab">Basic</a></li>
-    <li><a href="#advance" data-toggle="tab">Advanced</a></li>    
-</ul>
-<div id="myTabContent" class="tab-content">
-    <div class="tab-pane fade active in" id="basic">
-        
-        <div class="btn-toolbar">
-            <div class="btn-group" style="font-family:MathJax_Math-italic" id="BasicSymbols" >               
-            </div>
-        </div>
-            
-             
+<div class="row" id="editor">
+    
+    
 </div>
-    <br />
-    <div class="tab-pane fade" id="advance">
-        <div class="btn-group" role="group" aria-label="toolbar">
-            <button type="button" class="btn btn-default">Left</button>
-            <button type="button" class="btn btn-default">Middle</button>
-            <button type="button" class="btn btn-default">Right</button>
-        </div>
-    </div>    
-</div>
-<div class="well" id="editor" tabindex="1">
-    @*<math xmlns="http://www.w3.org/1998/Math/MathML">
-        <mi>&#x03C0;<!-- π --></mi>
-        <mo>&#x2062;<!-- &InvisibleTimes; --></mo>
-        <msup>
-            <mi>r</mi>
-            <mn>2</mn>
-        </msup>
-    </math>*@
-</div>
+    
+
+
 
 
 
@@ -55,6 +29,7 @@
             jax: ["input/MathML", "output/HTML-CSS", "output/NativeMML", "output/CommonHTML"],
             tex2jax: { inlineMath: [["$","$"],["\\(","\\)"]] },
             showMathMenu: false,
+            showProcessingMessages: false,
             extensions: ["mml2jax.js", "MathMenu.js", "MathZoom.js", "CHTML-preview.js"]
         });
     </script>
@@ -63,20 +38,9 @@
     <script src="~/Scripts/matheditor-lib/mathEditor.js"></script>
    
 
-    <script type="text/javascript">        
-       
-      
-        var mathSymbols = new MathCharacters()
-        mathSymbols.init(MathJax);
-        mathSymbols.bindBasicSymbols($("#BasicSymbols"))
-
-        var math = new MathEditor();       
-        
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "editor"], function () {
-            math.init("#editor",MathJax);
-            $("#editor").focus();
-            
-        });       
+    <script type="text/javascript">   
+        var math = new MathEditor(MathJax, "#editor");
+        math.init();
     </script>
 }
 
