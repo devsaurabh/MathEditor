@@ -25,13 +25,17 @@ textarea {
 
 /* Math Editor style to be moved to separate style sheet*/
 
-#math-editor:focus{
+.math-editor:focus{
  background-color:white;
  color:black;
     outline:none;
+    position:static;
+    height:100px;
 }
-#math-editor{ 
-    outline:none;   
+.math-editor{ 
+    outline:none; 
+     position:static;
+    height:100px;  
 }
 
 .selection {   
@@ -41,9 +45,9 @@ textarea {
      border-right: 0px solid black!important;
 }
 
-.mphantom {       
+/*.mphantom {       
     background-color: lightgray;
-}
+}*/
 
 .toolbar { font-size:.7em}
 

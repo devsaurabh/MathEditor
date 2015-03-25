@@ -1,28 +1,24 @@
-﻿var element = "";
-var MathEditor = function (mathjax,placeholder) {
+﻿var MathEditor = function (mathjax,placeholder) {
     var self = this;
-    self.MathJax = mathjax;
-    
-    // Initialize math jax component
-    
-        
-    //    self.placeholder = placeholder;
-    //    self.init();
-    //    $(self.editor).focus();
-    //});
+    self.MathJax = mathjax;   
+
+   
 
     /*****************Variable Devlarations******************/    
     self.mathChanged = true;
     self.mathElementList = [];    
     self.editor = null;
-    self.placeholder = placeholder;
-    self.mathQueue = "$ ({ x + y })^ 2 \\pm   \\Big ({ p \\over q} - \\sqrt{ z } \\Big )^ 3  $";
+    self.placeholder = placeholder;    
     self.lastCursorPos = 0;
     self.elementCount = 0;
     self.parser = null;    
     self.basicMathSymbols = []
     self.QUEUE = mathjax.Hub.queue;
     self.math = null;
+    
+    
+    self.bufferEditor = null;
+    self.mathQueue = null;
     /*************End Variable Declaration*******************/
 
 
@@ -63,9 +59,10 @@ var MathEditor = function (mathjax,placeholder) {
         var colEnd = '</div>'
         var tabs = '<ul class="nav nav-tabs"><li class="active"><a href="#basic" data-toggle="tab">Basic</a></li></ul>';
         var basicTools = '<div id="myTabContent" class="tab-content"><div class="tab-pane fade active in" id="basic"><div class="btn-toolbar"><div class="btn-group" style="font-family:MathJax_Math-italic" id="BasicSymbols"></div></div></div></div>'
-        var holder = '<div class="well" style="margin-top:5px" id="math-editor" tabindex=1></div>'
+        var holder = '<div class="well math-editor" style="margin-top:5px" visibility:hidden; id="math-editor" tabindex=1></div>'
+        var buffer = '<div id="MathBuffer" class="well math-editor" style="margin-top:5px" visibility:hidden; tabindex=2></div>'
 
-        var editor = colStart + tabs + basicTools + holder + colEnd;
+        var editor = colStart + tabs + basicTools + holder + buffer + colEnd;
         $(self.placeholder).append(editor);
 
         // load basic toolbar
@@ -73,9 +70,7 @@ var MathEditor = function (mathjax,placeholder) {
         $.each(basic, function (key, value) {
             var button = '<button type="button" onclick="addSymbol(\'' + value[2] + '\')" class="btn btn-default" data-toggle="tooltip" data-placement="left" title="' + value[0] + '">' + value[1] + '</button>';
             $("#BasicSymbols").append(button);
-        });
-
-        
+        });        
     }    
 
     self.init = function () {
@@ -94,20 +89,25 @@ var MathEditor = function (mathjax,placeholder) {
 
         // set the editor to math editor created in the previous step
         self.editor = $("#math-editor");
-        
-        // intialize the tex parse (work need to be done)
-        self.parser = TeXParser();
+        self.bufferEditor = $("#MathBuffer")
 
-        self.MathJax.Hub.Queue(["Typeset", self.MathJax.Hub, "math-editor"]);
+        // intialize the tex parse (work need to be done)
+        self.parser = new TeXParser();
+        $(self.editor).html(self.parser.getTeXString());
+        self.parser.getTextAtPos();
+
+        //MathJax.Hub.Queue(["Typeset", MathJax.Hub, "math-editor"], function () { self.showCursor(0)});
 
         self.QUEUE.Push(function () {
-            math = self.MathJax.Hub.getAllJax("math-editor")[0];
-            //box = document.getElementById("box");
-            //  SHOWBOX(); // box is initially hidden so the braces don't show
+            self.updateMath();
+            self.math = self.MathJax.Hub.getAllJax("math-editor")[0];
+           
         });
 
+        self.MathJax.Hub.Register.MessageHook("End Process", self.updateMath);
+
         // load the starting math in the math editor
-        self.updateMath();
+        //self.updateMath();
 
         // bind various events required for the math editor
         $(self.editor).keypress(function (e) {
@@ -134,12 +134,16 @@ var MathEditor = function (mathjax,placeholder) {
     self.showCursor = function (pos) {
 
         if (self.mathChanged) {
-            var mathElements = $(self.editor).find($("span[class^='mi'],span[class^='mn'],span[class^='mphantom'],span[class^='mo'],span[class^='msqrt'],span[class^='mfrac']"));           
+            var mathElements = $(self.editor).find($("span[class^='mi'],span[class^='mn'],span[class^='mphantom'],span[class^='mo'],span[class^='msqrt'],span[class^='mfrac']"));
+            console.log(mathElements);
             self.mathElementList = [];
             $.each(mathElements, function (t, i) {
                 if ($(i).text().length > 0) {                    
                     var id = "#" + $(i).attr("id");
-                    self.mathElementList.push(id);
+                    if ($(id).parent().parent().hasClass("mphantom") == false) {
+                        self.mathElementList.push(id);
+                     
+                    }
                     $(id).removeClass("selection");
                 }
             });
@@ -150,16 +154,14 @@ var MathEditor = function (mathjax,placeholder) {
             $.each(self.mathElementList, function (t, i) {                
                 $(i).removeClass("selection");                
             });
+            
         }
+        
         if ($(self.editor).is(':focus')) {
-            $(self.mathElementList[pos]).addClass("selection");
-            //alert("hello");
+            $(self.mathElementList[pos]).addClass("selection");            
         } else {
             $(self.mathElementList[pos]).removeClass("selection");
-        }
-        
-       
-        
+        }               
     }    
 
     self.onKeyDown = function (keyCode) {
@@ -261,24 +263,113 @@ var MathEditor = function (mathjax,placeholder) {
     }
 
     self.updateMath = function () {
-        self.QUEUE.Push(HIDEBOX, ["Text", self.math, "\\displaystyle{" + self.mathQueue + "}"], SHOWBOX);
-        //$(self.editor).html(self.mathQueue);
-        ////var math = MathJax.Hub.getAllJax("math-editor")[0];
-        ////self.MathJax.Hub.Queue(["Text", math, "x+1"]);
-        //self.MathJax.Hub.Queue(["Typeset", self.MathJax.Hub, "math-editor"], function () { console.log(self.mathQueue); $(self.editor).focus(); self.showCursor(0);});
-        //self.MathJax.Hub.Typeset("math-editor", function () { console.log(self.editor);  });
+        console.log(self.math);
+        $(self.editor).focus();
+        self.showCursor(self.lastCursorPos);
     }
 
     addSymbol = function (tex) {
-        self.mathQueue = "$" + tex + "$";
-        self.updateMath();
+        
+        self.mathChanged = true;
+        self.parser.insert(self.lastCursorPos, tex);
+        var rawString = self.parser.getTeXString().replace(/\$/g, "");
+        //self.QUEUE.Push(["Text", math, rawString]);
+        self.MathJax.Hub.Queue(["Text", self.math, rawString]);       
     }
 
-    var HIDEBOX = function () { }
-    var SHOWBOX = function () { }
-
+   
 };
 
+var TeXParser = function () {
+    var self = this;
+    self.texString = "$ ( x + y ) ^2 \\pm \\Big( { p \\over q } - \\sqrt { \\phantom{x} } \\Big) ^3 $";    
+    self.newLineChar = "\\phantom { x }";    
+
+    //self.append = function (symbol, inGroup) {
+    //    var currentTex = self.texString;
+    //    if (inGroup) {
+    //        // check the last character
+    //        var lastChar = currentTex.charAt(currentTex.length - 1);
+    //        if (lastChar == '}') {
+    //            var secondLastChar = currentTex.charAt(currentTex.length - 2);
+    //            //if()
+    //        }
+    //    }
+    //};
+
+    self.append = function (symbol, position) {
+
+        var block = "{" + synbol + "}";
+        self.texString += block;
+    };
+
+    self.insert = function (pos, symbol) {
+        var allTokens = self.getAllTokens();
+        var validTokens = allTokens.filter(function (tk) { return tk[2] == true; });
+        var matchToken = validTokens[pos];
+        console.log(matchToken);
+        //alert((matchToken[1]));
+        var modToken = [symbol, matchToken[1], false];
+        allTokens[modToken[1]] = modToken;
+        
+        var str = ""
+        $.each(allTokens, function (a, b) {
+            str += " " + b[0];
+        });
+        self.texString = str;
+    }
+    
+
+    self.getTeXString = function () {
+        
+        var rawString = self.texString.replace(/\$/g, "")
+        if (rawString.length == 0) {
+           return "$" + self.newLineChar + "$";
+        }
+        else {
+            return "$" + rawString + self.newLineChar + "$";
+        }
+        //return self.texString;
+    }
+
+   
+
+    self.getTextAtPos = function (pos) {
+        var allTokens = self.getAllTokens();
+        var validTokens = allTokens.filter(function (tk) { return  tk[2] == true; });        
+    }
+
+    self.getAllTokens = function () {
+        var rawString = self.texString;
+        var allTokens = [];
+        $.each(rawString.split(' '), function (a, b) {            
+            if (b != "$" && b != " " && b != "{" && b != "}" && b != "[" && b != "]") {
+                allTokens.push([b, a, true]);
+            }
+            else {
+                allTokens.push([b, a, false]);
+            }
+        });
+        return allTokens;
+    }
+
+    self.getGroups = function () {
+        var rawString = self.texString.replace(/\$/g, "")
+        var allTokens = [];
+        $.each(rawString.split(' '), function (a, b) {
+            
+            //b = b.replace("{", "").replace("}", "").replace("[", "").replace("]", "");
+            if (b != "" || b != " " || b != "{" || b != "}" || b != "[" || b != "]") {
+                allTokens.push([b, a, true])
+            }
+            else {
+                allTokens.push([b, a, false])
+            }
+        });
+
+        console.log(allTokens);
+    }
+}
 
 
 
